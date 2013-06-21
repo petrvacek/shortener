@@ -1,6 +1,17 @@
 <?php
 //namespace VACEK;
 
+/**
+ * 
+ * @author      Petr Vacek <vacek.eu@gmail.com>
+ * @since       2013-06-21
+ * 
+ * Třída pro převod čísla do jiného prostoru a zpět
+ * lze definovat bázi do které a z které probíhá převod
+ * vhodné jako zkracovač velkých čísel
+ * 
+ * @package Vacek
+ */
 
 class Str2Int{
     const BASE_ALNUM = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -12,10 +23,26 @@ class Str2Int{
     
     
     /**
-     * Shuffle base string order by vector
-     * @param string $base
-     * @param string|integer $vector
-     * @return string
+     * Zamíchat s pořadím převodní báze
+     * 
+     * Here is  example:
+     * <code>
+     * <?
+     * $base = Str2Int::ShuffleBase(Str2Int::BASE_ALNUM);
+     * ?>
+     * or
+     * <?
+     * $base = Str2Int::ShuffleBase(Str2Int::BASE_ALNUM,"some string");
+     * ?>
+     * or
+     * <?
+     * $base = Str2Int::ShuffleBase(Str2Int::BASE_ALNUM,12345625); // some int
+     * ?>
+     * </code>
+     *
+     * @param string $base Znaky báze
+     * @param string|integer $vector nastavuje míchačku znaků
+     * @return string zamíchaná báze 
      */
     public static function ShuffleBase($base,$vector = null){
         $vector = (string) $vector;
@@ -45,7 +72,17 @@ class Str2Int{
         return implode("", array_keys($nbase));   
     }
     
-    public static function int2stringBC($integer,$charbase){
+    /**
+     * převod čísla do jiné báze (do všech alfanumerických znaků)
+     * používá knihovnu BCMath, je vhodná pro převod větších čísel
+     * reverzní funkce k reverzní funkce k {@link Str2Int::string2intBC } 
+     * 
+     * @see BCMath 
+     * @param string|int $integer
+     * @param string $charbase
+     * @return string
+     */
+    public static function int2stringBC($integer,$charbase = self::BASE_ALNUM){
         $int = (string) $integer;
         $base = $charbase;
 	$length = strlen($base);        
@@ -57,7 +94,17 @@ class Str2Int{
         return $base[$int] . @$out;
     }
 
-    public static function string2intBC($string,$charbase){
+    /**
+     * převod stringu na číslo
+     * vhodná pro velké čísla / řetězce
+     * reverzní funkce k {@link Str2Int::int2stringBC } 
+     * 
+     * @see BCMath 
+     * @param string $string
+     * @param string $charbase definuje bázi
+     * @return string number in string
+     */
+    public static function string2intBC($string,$charbase = self::BASE_ALNUM){
         $base = $charbase;
         $length = strlen($base);
         $size = strlen($string) - 1;
@@ -70,7 +117,7 @@ class Str2Int{
         return $out;
     }    
     
-    public static function int2stringSTD($integer,$charbase){
+    public static function int2stringSTD($integer,$charbase = self::BASE_ALNUM){
         $base = $charbase;
 	$length = strlen($base);
 	while($integer > $length - 1)
@@ -81,7 +128,7 @@ class Str2Int{
 	return $base[$integer] . @$out;
     }
     
-    public static function string2intSTD($string,$charbase)
+    public static function string2intSTD($string,$charbase = self::BASE_ALNUM)
     {
         $base = $charbase;
         $length = strlen($base);
@@ -97,24 +144,3 @@ class Str2Int{
 
 }
 
-
-
-
-## simple test
-
-
-function p($p){
-    echo "<pre>".print_r($p,true)."</pre>";
-}
-
-
-$base = Str2Int::ShuffleBase(Str2Int::BASE_URLSAFE, "some string / nuber / constant");
-
-
-for($i=1;$i<200;$i+=10){
-    $num = bcpow("10", (string) $i);
-    
-    $coded = Str2Int::int2stringBC($num, $base);
-    p(array("original"=>$num,"encoded"=>$coded, "decoded"=>Str2Int::string2intBC($coded, $base),"charbase"=>$base));
-    echo "<hr>";
-}
