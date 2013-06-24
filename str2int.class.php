@@ -14,6 +14,10 @@
  */
 
 class Str2Int{
+    
+    const DOUBLE_LIMIT = 9007199254740992;
+    const DOUBLE_LIMIT_REVERSE = 13537086546263552;
+    
     const BASE_ALNUM = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     const BASE_NUM = "0123456789";
     const BASE_BIN = "01";
@@ -79,10 +83,10 @@ class Str2Int{
      * 
      * @see BCMath 
      * @param string|int $integer
-     * @param string $charbase
+     * @param string $charbase báze (prostor) kam se převede zadané číslo
      * @return string
      */
-    public static function int2stringBC($integer,$charbase = self::BASE_ALNUM){
+    private static function int2stringBC($integer,$charbase = self::BASE_ALNUM){
         $int = (string) $integer;
         $base = $charbase;
 	$length = strlen($base);        
@@ -101,10 +105,10 @@ class Str2Int{
      * 
      * @see BCMath 
      * @param string $string
-     * @param string $charbase definuje bázi
+     * @param string $charbase báze (prostor) ze kterého se převede zadaný string
      * @return string number in string
      */
-    public static function string2intBC($string,$charbase = self::BASE_ALNUM){
+    private static function string2intBC($string,$charbase = self::BASE_ALNUM){
         $base = $charbase;
         $length = strlen($base);
         $size = strlen($string) - 1;
@@ -117,7 +121,7 @@ class Str2Int{
         return $out;
     }    
     
-    public static function int2stringSTD($integer,$charbase = self::BASE_ALNUM){
+    private static function int2stringSTD($integer,$charbase = self::BASE_ALNUM){
         $base = $charbase;
 	$length = strlen($base);
 	while($integer > $length - 1)
@@ -128,7 +132,7 @@ class Str2Int{
 	return $base[$integer] . @$out;
     }
     
-    public static function string2intSTD($string,$charbase = self::BASE_ALNUM)
+    private static function string2intSTD($string,$charbase = self::BASE_ALNUM)
     {
         $base = $charbase;
         $length = strlen($base);
@@ -141,6 +145,42 @@ class Str2Int{
         }
         return $out;
     }    
+    
+    /**
+     * převod čísla do jiného prostoru s automatickým rozdělením podle velikosti
+     * @param type $integer
+     * @param type $charbase
+     * @return type
+     */
+    public static function int2string($integer,$charbase = self::BASE_ALNUM){
+        if($integer > self::DOUBLE_LIMIT){
+            return self::int2stringBC($integer, $charbase);
+        }else{
+            return self::int2stringSTD($integer, $charbase);
+        }
+    }
+    /**
+     * převod z prostoru definovaným vectoru do desítkové soustavy s automatickým rozdělením podle velikosti
+     * @param type $string
+     * @param type $charbase
+     * @return type
+     */
+    public static function string2int($string,$charbase = self::BASE_ALNUM){
+        $base = $charbase;
+        $length = strlen($base);
+        $size = strlen($string) - 1;
+        $_string = str_split($string);
+        $out = strpos($base, array_pop($_string));
 
+        if($length>0){
+            //$out = bcmul($length ,bcpow((string) $length, strval($size),0) ,0);
+            $out = bcpow((string) $length, strval($size+1),0);
+        }
+        if($out > self::DOUBLE_LIMIT_REVERSE){
+            return self::string2intBC($string, $charbase);
+        }else{
+            return self::string2intSTD($string, $charbase);
+        }
+    }
 }
 
